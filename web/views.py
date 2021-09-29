@@ -36,8 +36,11 @@ def result(request):
         if type == "1":
             query = canonicalize_smiles(query)
             sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where canonical_substrate_smiles='"+query+"'"
-            dopic(query)
+            image = dopic(query)
+            print(image)
             data = db.getAllSql(sql)
+            for v in  data:
+                v['image'] = image
 
 
         
@@ -48,6 +51,8 @@ def result(request):
             data = db.getAllSql(sql)
             if data != None:
                 for v in  data:
+                    image = dopic(v['SMILES'])
+                    v['image'] = image
                     v['score'] = do_sim(query,v['SMILES'])
                     flag = 0
                     if len(outdata) == 0:
@@ -79,18 +84,19 @@ def result(request):
                 outdic = {}
                 outdic['react_product'] = v
                 outdic['score'] = mymap[v]
-                dopic(v)
+                image = dopic(v)
+                outdic['image'] = image
                 data.append(outdic)
 
         elif type == "4":
             #1-chloro-2,4-dinitrobenzene
             sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where Compound_Name like '%"+query+"%' or Compound_Name like '%"+query+"%'"
-            print(sql)
             data = db.getAllSql(sql)
             if data!=None and len(data)!=0:
                 smile = data[0]['SMILES']
                 smile = canonicalize_smiles(smile)
-                dopic(smile)
+                image = dopic(smile)
+                data[0]['image'] = image
             
 
         json_data = json.dumps(data)
@@ -110,15 +116,16 @@ def detail(request):
         mydata = db.getSql(sql)
         if mydata!=None:
             smile = mydata['canonical_substrate_smiles']
-            print(smile)
             smile = canonicalize_smiles(smile)
-            dopic(smile)
+            image = dopic(smile)
+            mydata['image'] = image
         sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Major_product,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
         data = db.getAllSql(sql)
         for v in data:
             br_smile =  canonicalize_smiles(v['Substrate_SMILES'])
             br_smile = canonicalize_smiles(br_smile)
-            dopic(br_smile)
+            image = dopic(br_smile)
+            v['image'] = image
 
         mydata['ext'] = data
         json_data = json.dumps(mydata)
@@ -128,10 +135,12 @@ def detail(request):
 
 
 def dopic(query):
-    filename = "./media/"+query+".jpg"
+    outfile = query.replace("/","")
+    picname = outfile+'.jpg'
+    filename = "./media/"+outfile+".jpg"
     if os.path.isfile(filename):
         print("exist")
-        return
+        return "http://1.117.57.232:8080/media/"+picname
     
     opts = DrawingOptions()
     # 'OC1C2C1CC2'
@@ -139,8 +148,9 @@ def dopic(query):
     opts.includeAtomNumbers=True
     opts.bondLineWidth=2.8
     draw = Draw.MolToImage(m, options=opts)
-    draw.save('./media/'+query+'.jpg')
-    picname = query+'.jpg'
+    draw.save('./media/'+outfile+'.jpg')
+  
+    return "http://1.117.57.232:8080/media/"+picname
 
 
 def canonicalize_smiles(smiles):
