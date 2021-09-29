@@ -48,7 +48,7 @@ def result(request):
             data = db.getAllSql(sql)
             if data != None:
                 for v in  data:
-                    v['score'] = do_sim(query,v['canonical_substrate_smiles'])
+                    v['score'] = do_sim(query,v['SMILES'])
                     flag = 0
                     if len(outdata) == 0:
                         outdata.append(v)
@@ -84,17 +84,18 @@ def result(request):
 
         elif type == "4":
             #1-chloro-2,4-dinitrobenzene
-            sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where Compound_Name like '%"+query+"%' or Pubchem_CID = "+query+" or Compound_Name like '%"+query+"%'"
+            sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where Compound_Name like '%"+query+"%' or Compound_Name like '%"+query+"%'"
+            print(sql)
             data = db.getAllSql(sql)
             if data!=None and len(data)!=0:
-                smile = data[0]['canonical_substrate_smiles']
+                smile = data[0]['SMILES']
                 smile = canonicalize_smiles(smile)
                 dopic(smile)
             
 
         json_data = json.dumps(data)
     except Exception as err:
-        print(err)
+        print(err,"corey")
         return HttpResponse("error", content_type="application/json")
     return HttpResponse(json_data, content_type="application/json")
 
@@ -115,7 +116,7 @@ def detail(request):
         sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Major_product,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
         data = db.getAllSql(sql)
         for v in data:
-            br_smile =  canonicalize_smiles(v['substrate_smiles_canonical'])
+            br_smile =  canonicalize_smiles(v['Substrate_SMILES'])
             br_smile = canonicalize_smiles(br_smile)
             dopic(br_smile)
 
