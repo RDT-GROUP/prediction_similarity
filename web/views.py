@@ -37,7 +37,6 @@ def result(request):
             query = canonicalize_smiles(query)
             sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where canonical_substrate_smiles='"+query+"'"
             image = dopic(query)
-            print(image)
             data = db.getAllSql(sql)
             for v in  data:
                 v['image'] = image
@@ -108,6 +107,7 @@ def result(request):
     
 def detail(request):
     try:
+        outdata = []
         id = request.GET.get("id")
         json_data = ""
         if id == None:
@@ -115,7 +115,7 @@ def detail(request):
         sql = "select Category,Subcategory,Compound_Name,SMILES,Canonical_SMILES,INCHI,INCHIKEY,Molecular_Weight,LogP,H_bond_acceptors,Topological_Polar_Surface_Area from substrate where Pubchem_CID='"+id+"' limit 1"
         mydata = db.getSql(sql)
         if mydata!=None:
-            smile = mydata['canonical_substrate_smiles']
+            smile = mydata['SMILES']
             smile = canonicalize_smiles(smile)
             image = dopic(smile)
             mydata['image'] = image
@@ -129,7 +129,8 @@ def detail(request):
 
         mydata['ext'] = data
         json_data = json.dumps(mydata)
-    except:
+    except Exception as err:
+        print(err)
         return HttpResponse("", content_type="application/json")
     return HttpResponse(json_data, content_type="application/json")
 
