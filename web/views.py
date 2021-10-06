@@ -39,7 +39,7 @@ def result(request):
             image = dopic(query)
             data = db.getAllSql(sql)
             for v in  data:
-                v['image'] = image
+                v['Image'] = image
 
 
         
@@ -51,18 +51,18 @@ def result(request):
             if data != None:
                 for v in  data:
                     image = dopic(v['SMILES'])
-                    v['image'] = image
-                    v['score'] = do_sim(query,v['SMILES'])
+                    v['Image'] = image
+                    v['Score'] = do_sim(query,v['SMILES'])
                     flag = 0
                     if len(outdata) == 0:
                         outdata.append(v)
                         flag=1
                     for oi in range (0,len(outdata)-1):
-                        if outdata[oi]['score'] > v['score'] and outdata[oi+1]['score']<v['score']:
+                        if outdata[oi]['Score'] > v['Score'] and outdata[oi+1]['Score']<v['Score']:
                             outdata.insert(oi+1,v)
                             flag = 1
                             break
-                    if flag==0 and outdata[0]['score']<v['score']:
+                    if flag==0 and outdata[0]['Score']<v['Score']:
                         outdata.insert(0,v)
                         flag = 1
                     else:
@@ -82,9 +82,9 @@ def result(request):
             for v in mylist:
                 outdic = {}
                 outdic['react_product'] = v
-                outdic['score'] = mymap[v]
+                outdic['Score'] = mymap[v]
                 image = dopic(v)
-                outdic['image'] = image
+                outdic['Image'] = image
                 data.append(outdic)
 
         elif type == "4":
@@ -95,13 +95,14 @@ def result(request):
                 smile = data[0]['SMILES']
                 smile = canonicalize_smiles(smile)
                 image = dopic(smile)
-                data[0]['image'] = image
+                data[0]['Image'] = image
             
 
         json_data = json.dumps(data)
     except Exception as err:
         print(err,"corey")
         return HttpResponse("error", content_type="application/json")
+    json_data = json_data.replace("_"," ")
     return HttpResponse(json_data, content_type="application/json")
 
     
@@ -118,20 +119,22 @@ def detail(request):
             smile = mydata['SMILES']
             smile = canonicalize_smiles(smile)
             image = dopic(smile)
-            mydata['image'] = image
+            mydata['Image'] = image
         sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Major_product,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
         data = db.getAllSql(sql)
         for v in data:
             br_smile =  canonicalize_smiles(v['Substrate_SMILES'])
             br_smile = canonicalize_smiles(br_smile)
             image = dopic(br_smile)
-            v['image'] = image
+            v['Image'] = image
 
         mydata['ext'] = data
         json_data = json.dumps(mydata)
     except Exception as err:
         print(err)
         return HttpResponse("", content_type="application/json")
+    
+    json_data = json_data.replace("_"," ")
     return HttpResponse(json_data, content_type="application/json")
 
 
