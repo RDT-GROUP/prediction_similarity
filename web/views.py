@@ -81,7 +81,7 @@ def result(request):
             data = []
             for v in mylist:
                 outdic = {}
-                outdic['react_product'] = v
+                outdic['Predicted_results'] = v
                 outdic['Score'] = mymap[v]
                 image = dopic(v)
                 outdic['Image'] = image
