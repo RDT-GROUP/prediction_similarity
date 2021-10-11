@@ -120,7 +120,7 @@ def detail(request):
             smile = canonicalize_smiles(smile)
             image = dopic(smile)
             mydata['Image'] = image
-        sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Major_product,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
+        sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
         data = db.getAllSql(sql)
         for v in data:
             br_smile =  canonicalize_smiles(v['Substrate_SMILES'])
