@@ -123,7 +123,7 @@ def detail(request):
         sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
         data = db.getAllSql(sql)
         for v in data:
-            br_smile =  canonicalize_smiles(v['Substrate_SMILES'])
+            br_smile =  canonicalize_smiles(v['Product_SMLIE'])
             br_smile = canonicalize_smiles(br_smile)
             image = dopic(br_smile)
             v['Image'] = image
