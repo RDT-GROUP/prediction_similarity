@@ -91,12 +91,11 @@ def result(request):
             #1-chloro-2,4-dinitrobenzene
             sql = "select Pubchem_CID,Category,Subcategory,Compound_Name,SMILES from substrate where Compound_Name like '%"+query+"%' or Compound_Name like '%"+query+"%'"
             data = db.getAllSql(sql)
-            if data!=None and len(data)!=0:
-                smile = data[0]['SMILES']
+            for v in  data:
+                smile = v['SMILES']
                 smile = canonicalize_smiles(smile)
                 image = dopic(smile)
-                data[0]['Image'] = image
-            
+                v['Image'] = image          
 
         json_data = json.dumps(data)
     except Exception as err:
@@ -120,10 +119,10 @@ def detail(request):
             smile = canonicalize_smiles(smile)
             image = dopic(smile)
             mydata['Image'] = image
-        sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIE,Enzyme,Reference,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"'"
+        sql = "select Substrate,Substrate_SMILES,Reaction_class,Reaction_type,Product,Product_SMLIES,Enzyme,Reference,Biosystem from biotransformation_reactions where Pubchem_CID='"+id+"' order by Biosystem"
         data = db.getAllSql(sql)
         for v in data:
-            br_smile =  canonicalize_smiles(v['Product_SMLIE'])
+            br_smile =  canonicalize_smiles(v['Product_SMLIES'])
             br_smile = canonicalize_smiles(br_smile)
             image = dopic(br_smile)
             v['Image'] = image

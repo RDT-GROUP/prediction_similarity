@@ -1,0 +1,3 @@
+media/*
+prediction_similarity/__pycache__
+web/__pycache__
